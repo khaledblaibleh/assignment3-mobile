@@ -1,17 +1,10 @@
-import {
-  View,
-} from 'react-native';
-
+import { PaperProvider } from "react-native-paper";
 import Loyalty from "./Loyalty"
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'; // Import this
-import { PaperProvider } from 'react-native-paper';
-export default function () {
+
+export default function App() {
   return (
-    <SafeAreaProvider>
-      <PaperProvider>
-        <SafeAreaView style={{ flex: 1 }}>
-          <Loyalty />
-        </SafeAreaView>
-      </PaperProvider></SafeAreaProvider>
-  );
+<PaperProvider>
+    <Loyalty />
+</PaperProvider>  );
 }
+

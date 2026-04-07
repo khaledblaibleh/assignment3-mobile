@@ -1,32 +1,91 @@
-let currentState = welcoming;
+let step = "start";
 
-export function handleInput(sInput) {
-  return currentState(sInput);
+let order = {
+  item: "",
+  size: "",
+  topping: "",
+  drink: ""
+};
+
+export function clearInput() {
+  step = "start";
+  order = { item: "", size: "", topping: "", drink: "" };
 }
 
-export function clearInput(){
-  currentState = welcoming;  
-}
+export function handleInput(input) {
+  input = input.toLowerCase().trim();
 
-function welcoming() {
-  let aReturn = [];
-  currentState = reserving;
-  aReturn.push("Welcome to Rich's Acton Rapid Test.");
-  aReturn.push("Would you like to reserve a rapid test kit?");
-  return aReturn;
-}
-
-function reserving(sInput) {
-  let aReturn = [];
-  currentState = welcoming
-  if (sInput.toLowerCase().startsWith('y')) {
-    aReturn.push(`Your rapid test is reserved`);
-    let d = new Date();
-    d.setMinutes(d.getMinutes() + 120);
-    aReturn.push(`Please pick it up at 123 Tidy St., Acton before ${d.toTimeString()}`);
-  } else {
-    aReturn.push("Thanks for trying our reservation system");
-    aReturn.push("Maybe next time");
+  // STEP 1: WELCOME & MENU
+  if (step === "start") {
+    step = "item";
+    return [
+      "Welcome to our Takeout Chatbot!",
+      "What would you like to order: Pizza or Burger?"
+    ];
   }
-  return aReturn;
+
+  // STEP 2: CHOOSE ITEM
+  if (step === "item") {
+    if (input === "pizza" || input === "burger") {
+      order.item = input;
+      step = "size";
+      return [
+        `Great choice! What size ${input} would you like: Small or Large?`
+      ];
+    }
+    return ["Sorry, please choose either 'Pizza' or 'Burger'."];
+  }
+
+  // STEP 3: CHOOSE SIZE
+  if (step === "size") {
+    if (input === "small" || input === "large") {
+      order.size = input;
+      step = "topping";
+      let toppingChoice = order.item === "pizza" ? "Pepperoni or Mushroom" : "Cheese or Bacon";
+      return [
+        `Got it, a ${input} ${order.item}.`,
+        `What topping would you like: ${toppingChoice}?`
+      ];
+    }
+    return ["Please choose 'Small' or 'Large'."];
+  }
+
+  // STEP 4: CHOOSE TOPPING
+  if (step === "topping") {
+    // Basic validation for any input (you can make this stricter if you like)
+    if (input.length > 2) { 
+      order.topping = input;
+      step = "drink";
+      return [
+        `Topping added: ${input}.`,
+        "Would you like to add a drink for $2? (yes/no)"
+      ];
+    }
+    return ["Please enter a valid topping name."];
+  }
+
+  // STEP 5: DRINK UP-SELL (WITH VALIDATION)
+  if (step === "drink") {
+    if (input === "yes" || input === "no") {
+      order.drink = input;
+      step = "done";
+
+      let summary = `Order Summary: One ${order.size} ${order.item} with ${order.topping}`;
+      if (order.drink === "yes") {
+        summary += " and a cold drink.";
+      } else {
+        summary += " and no drink.";
+      }
+
+      return [
+        order.drink === "yes" ? "Awesome, drink added!" : "No problem, no drink.",
+        summary,
+        "Order complete! Refresh to start a new order."
+      ];
+    }
+    // This is the fix! It stays on the drink step if input is invalid.
+    return ["Please answer 'yes' or 'no' for the drink."];
+  }
+
+  return ["Order complete. Refresh to start a new order."];
 }
